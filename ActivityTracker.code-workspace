@@ -1,0 +1,39 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/bin": true,
+      "**/obj": true
+    }
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build C++ Tracker",
+        "type": "shell",
+        "command": "${workspaceFolder}/Tracker/Tracker.Build.bat",
+        "options": {
+          "cwd": "${workspaceFolder}/Tracker"
+        },
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "problemMatcher": "$msCompile"
+      }
+    ]
+  }
+}

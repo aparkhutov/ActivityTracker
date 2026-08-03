@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Status Chart with Tags</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Status Chart with Tags</h1>
+
+    <div class="legend">
+      <span><span class="dot green"></span> Active (1)</span>
+      <span><span class="dot red"></span> Inactive (0)</span>
+      <span id="totalSegments">Total: 0</span>
+      <span><span class="dot tag-dot"></span> Tag</span>
+    </div>
+
+    <!-- Tag row (above status chart) -->
+    <div class="tag-row-container">
+      <div id="tagRow" class="tag-row">
+        <div class="tag-placeholder">No tags</div>
+      </div>
+      <div class="tag-row-label">Tags (start - duration)</div>
+    </div>
+
+    <!-- Status chart -->
+    <div class="chart-container">
+      <div id="chart" class="chart"></div>
+      <div class="chart-label">Status</div>
+    </div>
+
+    <div id="stats" class="stats"></div>
+
+    <div class="tag-form">
+      <h3>Add/Edit Tag</h3>
+      <form id="tagForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tagStart">Start (p):</label>
+            <input type="number" id="tagStart" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="tagDuration">Duration:</label>
+            <input type="number" id="tagDuration" min="1" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="tagName">Tag Name:</label>
+            <input type="text" id="tagName" placeholder="Enter tag name...">
+          </div>
+        </div>
+        <div class="form-row">
+          <button type="submit" id="saveTagBtn">Save Tag</button>
+          <button type="button" id="clearTagBtn">Clear Form</button>
+          <button type="button" id="deleteTagBtn" class="delete-btn">Delete Tag</button>
+        </div>
+        <div id="tagMessage" class="tag-message"></div>
+      </form>
+    </div>
+
+    <div class="table-container">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>p</th>
+            <th>d</th>
+            <th>status</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="tags-table-container">
+      <h3>Tags List</h3>
+      <table id="tagsTable">
+        <thead>
+          <tr>
+            <th>Start</th>
+            <th>Duration</th>
+            <th>Name</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tagsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

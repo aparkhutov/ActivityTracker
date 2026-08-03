@@ -1,0 +1,8 @@
+// app.rc
+// Win32 resource script specifying the application icon asset path.
+// Strict ASCII-only source encoding.
+
+#include "resources.h"
+
+// Associate the icon identifier with the physical .ico file
+IDI_ICON ICON "../Resources/app.ico"
