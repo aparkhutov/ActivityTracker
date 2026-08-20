@@ -2,6 +2,8 @@
 #include <lmcons.h>
 #include <wtsapi32.h>
 #include <memory>
+#include <gdiplus.h>
+#include <vector>
 
 #include "Utils.h"
 
@@ -12,10 +14,33 @@ namespace
     while (count--)
     {
       wchar_t ch = *buf;
-      if ((ch < L'a' || ch > L'z') && (ch < L'A' || ch > L'Z') && (ch < L'0' || ch > L'9'))
+      // 0x0400-0x04FF: cyrillic range range for unicode
+      if ((ch < L'a' || ch > L'z') && (ch < L'A' || ch > L'Z') && (ch < L'0' || ch > L'9') &&
+          (ch < 0x0400 || ch > 0x04FF))
         *buf = L'_';
       ++buf;
     }
+  }
+  
+  inline CLSID GetEncoderClsid(const WCHAR* format)
+  {
+    CLSID clsid = {0};
+    UINT num = 0, size = 0;
+    Gdiplus::GetImageEncodersSize(&num, &size);
+    if (size > 0)
+    {
+      std::vector<Gdiplus::ImageCodecInfo> codecInfo(size / sizeof(Gdiplus::ImageCodecInfo));
+      Gdiplus::GetImageEncoders(num, size, codecInfo.data());
+      for (UINT j = 0; j < num; ++j)
+      {
+        if (wcscmp(codecInfo[j].MimeType, format) == 0)
+        {
+          clsid = codecInfo[j].Clsid;
+          break;
+        }
+      }
+    }
+    return clsid;
   }
 }
 
@@ -108,14 +133,11 @@ std::pair<std::wstring, std::wstring> Utils::GetActiveWindowInfo()
   if (!hwnd)
     return {L"", L""};
 
-  std::wstring windowTitle = L"";
-  int length = ::GetWindowTextLengthW(hwnd);
-  if (length > 0)
-  {
-    windowTitle.resize(length);
-    ::GetWindowTextW(hwnd, &windowTitle[0], length + 1);
-  }
+  wchar_t local_buffer[MAX_PATH * 4] = { 0, };
 
+  int copied = ::GetWindowTextW(hwnd, local_buffer, _countof(local_buffer));
+  std::wstring windowTitle(local_buffer, copied);
+  
   std::wstring processName = L"";
   DWORD pid = 0;
   ::GetWindowThreadProcessId(hwnd, &pid);
@@ -125,14 +147,12 @@ std::pair<std::wstring, std::wstring> Utils::GetActiveWindowInfo()
     HANDLE hProcess = ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
     if (hProcess)
     {
-      wchar_t pathBuffer[MAX_PATH];
-      DWORD size = MAX_PATH;
-      if (::QueryFullProcessImageNameW(hProcess, 0, pathBuffer, &size))
+      DWORD size = _countof(local_buffer);
+      if (::QueryFullProcessImageNameW(hProcess, 0, local_buffer, &size))
       {
-        std::wstring fullPath(pathBuffer);
-        size_t lastSlash = fullPath.find_last_of(L"\\/");
-        std::wstring exeName = (lastSlash != std::wstring::npos) ? fullPath.substr(lastSlash + 1) : fullPath;
-        processName = exeName;
+        processName.assign(local_buffer, size);
+        size_t lastSlash = processName.find_last_of(L"\\/");
+        std::wstring exeName = (lastSlash != std::wstring::npos) ? processName.substr(lastSlash + 1) : processName;
         for (wchar_t &c : exeName)
           c = ::towlower(c);
 
@@ -152,21 +172,12 @@ std::pair<std::wstring, std::wstring> Utils::GetActiveWindowInfo()
         HANDLE hRealProcess = ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, realPid);
         if (hRealProcess)
         {
-          wchar_t pathBuffer[MAX_PATH];
-          DWORD size = MAX_PATH;
-          if (::QueryFullProcessImageNameW(hRealProcess, 0, pathBuffer, &size))
-          {
-            std::wstring fullPath(pathBuffer);
-            size_t lastSlash = fullPath.find_last_of(L"\\/");
-            processName = (lastSlash != std::wstring::npos) ? fullPath.substr(lastSlash + 1) : fullPath;
-          }
+          DWORD size = _countof(local_buffer);
+          if (::QueryFullProcessImageNameW(hRealProcess, 0, local_buffer, &size))
+            processName.assign(local_buffer, size);
+
           ::CloseHandle(hRealProcess);
         }
-      }
-
-      if (processName.empty())
-      {
-        processName = L"ApplicationFrameHost.exe";
       }
     }
   }
@@ -209,7 +220,7 @@ bool Utils::EnsureDirectoryExists(const std::wstring &folderPath)
   DWORD attr = ::GetFileAttributesW(folderPath.c_str());
   if (attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY))
     return true;
-  
+
   std::wstring currentPath = L"";
   for (size_t i = 0; i < folderPath.length(); ++i)
   {
@@ -255,4 +266,22 @@ std::wstring Utils::GetSanitizedUsername()
   }();
 
   return cachedUsername;
+}
+
+bool Utils::ExtractAndSaveIcon(const std::wstring& fullPath, const std::wstring& targetIconPath)
+{
+  SHFILEINFOW sfi = {0};
+  if (::SHGetFileInfoW(fullPath.c_str(), 0, &sfi, sizeof(sfi), SHGFI_ICON | SHGFI_LARGEICON))
+  {
+    if (sfi.hIcon != nullptr)
+    {
+      Gdiplus::Bitmap bmp(sfi.hIcon);
+      static const CLSID pngClsid = GetEncoderClsid(L"image/png");
+      
+      bmp.Save(targetIconPath.c_str(), &pngClsid, nullptr);
+      ::DestroyIcon(sfi.hIcon);
+      return true;
+    }
+  }
+  return false;
 }

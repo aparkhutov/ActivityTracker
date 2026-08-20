@@ -39,10 +39,15 @@ namespace
     if (g_tracker != nullptr)
       g_tracker->stop(ms);
   }
-  inline void worker_join()
+  inline void worker_join(bool wait)
   {
     if (g_worker != nullptr && g_worker->joinable())
-      g_worker->join();
+    {
+      if (wait)
+        g_worker->join();
+      else
+        g_worker->detach();
+    }
   }
 
   inline void InitializeTrayIcon(HWND hWnd, HINSTANCE hInstance)
@@ -203,7 +208,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   // 10. Strict and Safe Teardown Sequence (CRITICAL)
   tracker_stop(INFINITE);
-  worker_join();
+  worker_join(true);
 
   Shell_NotifyIconW(NIM_DELETE, &g_nid);
   return (int)msg.wParam;
@@ -258,7 +263,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     if (static_cast<BOOL>(wParam) == TRUE)
     {
       tracker_stop(2500);
-      worker_join();
+      worker_join(false);
     }
     else
     {

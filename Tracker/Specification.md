@@ -43,13 +43,22 @@
 Использует функцию Win32 API GetLastInputInfo(&lii). Количество секунд бездействия вычисляется по формуле:
 $$\text{idle\_seconds} = \frac{\text{GetTickCount()} - \text{lii.dwTime}}{1000}$$ 
 В случае системной ошибки или отсутствия данных возвращает 0.
+
 ## Определение активного процесса и окна (Utils::GetActiveWindowInfo)
 
    1. Функция GetForegroundWindow() запрашивает дескриптор текущего активного окна.
    2. Заголовок извлекается функциями GetWindowTextLengthW() и GetWindowTextW().
    3. Идентификатор процесса (PID) извлекается через GetWindowThreadProcessId().
-   4. Трекер открывает процесс с флагом PROCESS_QUERY_LIMITED_INFORMATION и запрашивает полный путь через QueryFullProcessImageNameW(), откуда вычленяет только имя .exe файла.
-   5. Обработка UWP-приложений: Если имя процесса совпадает с applicationframehost.exe, трекер запускает процедуру EnumChildWindows(), чтобы найти реальный дочерний рабочий процесс UWP-контейнера и извлечь его настоящее имя.
+   4. Трекер открывает процесс с флагом PROCESS_QUERY_LIMITED_INFORMATION и запрашивает полный путь через QueryFullProcessImageNameW().
+   5. Обработка UWP-приложений: Если имя процесса совпадает с applicationframehost.exe, трекер запускает процедуру EnumChildWindows(), чтобы найти реальный дочерний рабочий процесс UWP-контейнера и извлечь полный путь.
+   6. Функция возвращает пару std::pair<std::wstring, std::wstring>, где на первом месте всегда стоит полный путь к исполняемому файлу, а на втором — заголовок окна.
+
+## Извлечение и умное кэширование иконок (ActivityTracker::PopulateIconCache)
+  Для минимизации дисковой активности (`I/O overhead`) извлечение иконок оптимизировано с помощью хэш-сета в оперативной памяти:
+   1. Инициализация (при старте): Метод `PopulateIconCache()` сканирует папку `%LOCALAPPDATA%\ActivityTracker\icons`, считывает имена всех существующих PNG-файлов и заполняет ими внутреннее хранилище `m_iconCache` (`std::unordered_set<std::wstring>`).
+   2. В рабочем цикле: Из полученного от `Utils::GetActiveWindowInfo()` полного пути вычленяется короткое имя файла (например, `chrome.exe`), приводится к нижнему регистру и проверяется в кэше.
+   3. Запись на диск: Если имени процесса нет в кэше, вызывается `Utils::ExtractAndSaveIcon`, которая вытаскивает иконку из полного пути через `SHGetFileInfoW`, конвертирует её в PNG с помощью Gdiplus и сохраняет на диск. После успешного сохранения имя процесса добавляется в `m_iconCache`.
+
 
 ## 5. Системные интерфейсы и многопоточность## Класс ActivityTracker (C++)
 Класс инкапсулирует логику планирования циклов сбора данных и управление потоком. Поток сбора синхронизируется через Win32 события (CreateEventW).
@@ -68,7 +77,8 @@ public:
 private:
     void PerformTrackingCycle(); // Один шаг опроса системы и записи строки в файл
     void Cleanup();              // Освобождение хэндлов Windows и закрытие файла
-
+    void PopulateIconCache(); // Сканирование диска и заполнение кэша иконок в памяти
+    
     std::wstring m_folderPath;
     int m_intervalSeconds;
     LONG m_status;               // Атомарный статус (RUNNING, PAUSED, STOPPED)
@@ -79,6 +89,8 @@ private:
     FILE* m_cachedFile = nullptr;// Дескриптор текущего открытого CSV-файла
     long m_cachedDayId = 0;      // Идентификатор дня для отслеживания ротации даты
     DWORD m_startWorkTicks = 0;  // Метка времени начала шага для компенсации задержек сбора
+    
+    std::unordered_set<std::wstring> m_iconCache; // Кэш извлеченных иконок процессов
 };
 
 ## Жизненный цикл в main.cpp

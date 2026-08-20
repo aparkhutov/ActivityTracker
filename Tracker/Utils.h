@@ -13,4 +13,5 @@ namespace Utils
   bool EnsureDirectoryExists(const std::wstring &folderPath);
   std::wstring GetFilePathWithPrefix(const std::wstring &folderPath, const std::wstring &datePrefix);
   std::wstring GetSanitizedUsername();
+  bool ExtractAndSaveIcon(const std::wstring& fullPath, const std::wstring& targetIconPath);
 }

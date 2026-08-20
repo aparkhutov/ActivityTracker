@@ -3,6 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <string>
+#include <unordered_set>
 
 class ActivityTracker {
 public:
@@ -24,13 +25,16 @@ public:
 
 private:
   void PerformTrackingCycle();
+  void CloseFile();
   void Cleanup();
-
+  void PopulateIconCache();
+  
   FILE* m_cachedFile = nullptr;
   long m_cachedDayId = 0;
 
   std::wstring m_folderPath;
   int m_intervalSeconds;
+  DWORD m_offSessionCount = 0;
   DWORD m_startWorkTicks = 0;
 
   // 32-bit atomic state variable aligned for Interlocked execution optimization
@@ -38,4 +42,6 @@ private:
   
   HANDLE m_hEvent;
   HANDLE m_hShutdownEvent;
+  
+  std::unordered_set<std::wstring> m_iconCache;
 };
