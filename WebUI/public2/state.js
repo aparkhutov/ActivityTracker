@@ -1,11 +1,8 @@
 let is24HourFormat = localStorage.getItem('is24HourFormat') !== 'false';
-
-let dayStartMinTime = 0;
-let dayMaxEndTime = 86400;
-
+const dayStartMinTime = 0;
+const dayMaxEndTime = 86400;
 let viewMinTime = 0;
 let viewMaxTime = 86400;
-
 let selections = []; 
 let activeDragSelection = { startSec: 0, endSec: 0, active: false };
 
@@ -24,6 +21,11 @@ const uiState = {
 };
 
 function formatHourText(timestampSec) {
-  const date = new Date(timestampSec * 1000);
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: !is24HourFormat });
+  const formatter = new Intl.DateTimeFormat([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: !is24HourFormat,
+    timeZone: 'UTC'
+  });
+  return formatter.format(new Date(timestampSec * 1000));
 }

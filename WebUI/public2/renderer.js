@@ -13,41 +13,44 @@ const dom = {
 
 async function initTimeline() {
   await ApiService.checkServerStatus();
-  await ApiService.getTimeline(); 
- 
-  const lines = window.timelineData.day;
+  await ApiService.getTimeline("2026-08-26", 10, 0); 
+  
+  const lines = window.timelineData.data;
   const timestamps = [];
-  ['tags', 'activity', 'process', 'documents'].forEach(key => {
-    if (lines[key]) {
-      lines[key].forEach(item => {
-        timestamps.push(item.start);
-        if (item.end) timestamps.push(item.end);
-      });
-    }
-  });
-
+  
+  if (lines) {
+    ['tags', 'activity', 'process', 'documents'].forEach(key => {
+      if (lines[key]) {
+        lines[key].forEach(item => {
+          timestamps.push(item.start);
+          if (item.end)
+            timestamps.push(item.end);
+        });
+      }
+    });
+  }
+  
   if (timestamps.length === 0) {
-    dayStartMinTime = 0;
-    dayMaxEndTime = 86400;
     viewMinTime = 0;
     viewMaxTime = 86400;
   } else {
     const absoluteFirstSec = Math.min(...timestamps);
-    const baseDate = new Date(absoluteFirstSec * 1000);
-   
-    baseDate.setHours(0, 0, 0, 0);
-    dayStartMinTime = Math.floor(baseDate.getTime() / 1000);
-    dayMaxEndTime = dayStartMinTime + 86400; 
-   
-    viewMinTime = Math.max(dayStartMinTime, absoluteFirstSec - 3600);
-    viewMaxTime = Math.min(dayMaxEndTime, viewMinTime + 28800); 
+    const absoluteLastSec = Math.max(...timestamps);
     
+    viewMinTime = Math.max(dayStartMinTime, absoluteFirstSec - 3600);
+    viewMaxTime = Math.min(dayMaxEndTime, absoluteLastSec + 3600);
+    
+    if (viewMaxTime - viewMinTime < 28800)
+      viewMaxTime = Math.min(dayMaxEndTime, viewMinTime + 28800);
+  }
+  
+  if (lines && lines.date) {
+    const baseDate = new Date(lines.date);
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     dom.header.textContent = `Activity Tracker Timeline — ${baseDate.toLocaleDateString('en-US', options)}`;
   }
   
   dom.formatToggle.textContent = is24HourFormat ? "Switch to 12h" : "Switch to 24h";
- 
   renderView();
 }
 

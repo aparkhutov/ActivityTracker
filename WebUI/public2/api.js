@@ -1,43 +1,47 @@
 let mockDataStorage = {
-  "day": {
+  "data": {
+    "date": "2026-08-26",
     "tags": [
-      { "id": 1, "start": 1711871500, "end": 1711872900, "label": "aa" },
-      { "id": 2, "start": 1711873000, "end": 1711875100, "label": "break" },
-      { "id": 3, "start": 1711875000, "end": 1711879600, "label": "lunch" }
+      { "id": 1, "start": 28800, "end": 36000, "label": "morning sync" },
+      { "id": 2, "start": 43200, "end": 54600, "label": "rdp development" }
     ],
     "activity": [
-      { "start": 1711872000, "end": 1711878000, "status": "worked" },
-      { "start": 1711878000, "end": 1711879200, "status": "idle" },
-      { "start": 1711879200, "end": 1711881000, "status": "worked" },
-      { "start": 1711881000, "end": 1711882200, "status": "off" },
-      { "start": 1711882800, "end": 1711890000, "status": "worked" },
-      { "start": 1711890000, "end": 1711891800, "status": "worked" }
+      { "start": 28800, "end": 36000, "status": "console" },
+      { "start": 36000, "end": 38280, "status": "console-idle" },
+      { "start": 38280, "end": 38700, "status": "console" },
+      { "start": 38700, "end": 43200, "status": "off" },
+      { "start": 43200, "end": 54600, "status": "rdp" },
+      { "start": 54600, "end": 56220, "status": "rdp-idle" },
+      { "start": 56220, "end": 60000, "status": "rdp" },
+      { "start": 60000, "end": 86400, "status": "off" }
     ],
     "process": [
-      { "start": 1711872000, "end": 1711875600, "name": "slack.exe" },
-      { "start": 1711875600, "end": 1711881000, "name": "vs_code.exe" },
-      { "start": 1711882800, "end": 1711890000, "name": "chrome.exe" },
-      { "start": 1711890000, "end": 1711891800, "name": "zoom.exe" }
+      { "start": 28800, "end": 36000, "name": "slack.exe" },
+      { "start": 38280, "end": 38700, "name": "cmd.exe" },
+      { "start": 43200, "end": 54600, "name": "code.exe" },
+      { "start": 56220, "end": 60000, "name": "chrome.exe" }
     ],
     "documents": [
-      { "start": 1711872000, "end": 1711875600, "doc": "Workspace Chat" },
-      { "start": 1711875600, "end": 1711881000, "doc": "index.html" },
-      { "start": 1711882800, "end": 1711890000, "doc": "StackOverflow" },
-      { "start": 1711890000, "end": 1711891800, "doc": "Daily Standup Meeting" }
+      { "start": 28800, "end": 36000, "doc": "Workspace Chat" },
+      { "start": 38280, "end": 38700, "doc": "Build Script" },
+      { "start": 43200, "end": 54600, "doc": "index.html" },
+      { "start": 56220, "end": 60000, "doc": "StackOverflow Thread" }
     ]
   }
 };
 
-let localMockTagIdCounter = 4;
+let localMockTagIdCounter = Math.max(...mockDataStorage.data.tags.map(t => t.id), 0) + 1;
 let isServerOnline = false;
 
-window.timelineData = { day: { tags: [], activity: [], process: [], documents: [] } };
+window.timelineData = {
+  data: { date: "", tags: [], activity: [], process: [], documents: [] }
+};
 
 const ApiService = {
   async checkServerStatus() {
     try {
       const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), 1000); // Быстрый таймаут 1 сек
+      const id = setTimeout(() => controller.abort(), 1000);
       const res = await fetch('/api/timeline', { method: 'HEAD', signal: controller.signal });
       clearTimeout(id);
       isServerOnline = res.ok;
@@ -45,19 +49,40 @@ const ApiService = {
       isServerOnline = false;
     }
   },
-  async getTimeline() {
+
+  async getTimeline(date, idle, from = 0) {
     if (isServerOnline) {
       try {
-        const response = await fetch('/api/timeline');
-        const data = await response.json();
-        window.timelineData.day = data.day;
+        const url = `/api/timeline?date=${date}&idle=${idle}&from=${from}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        window.timelineData.data = json.data;
       } catch (err) {
-        window.timelineData.day = mockDataStorage.day;
+        this.getMockTimeline(date, from);
       }
     } else {
-      window.timelineData.day = mockDataStorage.day;
+      this.getMockTimeline(date, from);
     }
   },
+
+  getMockTimeline(date, from) {
+    if (date !== mockDataStorage.data.date) {
+      window.timelineData.data = { date: date, tags: [], activity: [], process: [], documents: [] };
+      return;
+    }
+
+    const src = mockDataStorage.data;
+    const filterFn = (item) => item.end > from;
+
+    window.timelineData.data = {
+      date: src.date,
+      tags: src.tags.filter(filterFn),
+      activity: src.activity.filter(filterFn),
+      process: src.process.filter(filterFn),
+      documents: src.documents.filter(filterFn)
+    };
+  },
+
   async createTag(startSec, endSec, label) {
     if (isServerOnline) {
       try {
@@ -66,18 +91,28 @@ const ApiService = {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ start_in_seconds: startSec, end_in_seconds: endSec, label: label })
         });
-      } catch (err) { console.error(err); }
+      } catch (err) {
+        console.error(err);
+      }
     } else {
-      mockDataStorage.day.tags.push({ id: localMockTagIdCounter++, start: startSec, end: endSec, label: label });
+      mockDataStorage.data.tags.push({
+        id: localMockTagIdCounter++,
+        start: startSec,
+        end: endSec,
+        label: label
+      });
     }
   },
+
   async deleteTag(id) {
     if (isServerOnline) {
       try {
         await fetch(`/api/tags/${id}`, { method: 'DELETE' });
-      } catch (err) { console.error(err); }
+      } catch (err) {
+        console.error(err);
+      }
     } else {
-      mockDataStorage.day.tags = mockDataStorage.day.tags.filter(t => t.id !== id);
+      mockDataStorage.data.tags = mockDataStorage.data.tags.filter(t => t.id !== id);
     }
   }
 };
