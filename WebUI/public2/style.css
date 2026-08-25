@@ -1,0 +1,325 @@
+:root {
+  --bg-color: #1e1e2e;
+  --text-color: #cdd6f4;
+  --line-bg: #313244;
+  --border-color: #45475a;
+  --timeline-bg: #11111b;
+  --scrollbar-bg: #181825;
+  --grid-line: rgba(255, 255, 255, 0.08);
+  --grid-text: #7f849c;
+  
+  /* Новые переменные для ползунка скроллбара */
+  --thumb-bg: #45475a;
+  --thumb-border: #585b70;
+  --thumb-hover: #585b70;
+  --thumb-active: #7f849c;
+
+  --tag-color: rgba(137, 180, 250, 0.4);
+  --worked-color: rgba(166, 227, 161, 0.6);
+  --idle-color: rgba(249, 226, 175, 0.6);
+  --off-color: rgba(243, 139, 168, 0.4);
+  --item-bg: rgba(203, 166, 247, 0.3);
+  --selection-color: rgba(137, 180, 250, 0.15);
+}
+
+/* Дневная тема при переключении (Catppuccin Latte) */
+:root.light-theme {
+  --bg-color: #eff1f5;         /* base */
+  --text-color: #4c4f69;       /* text */
+  --line-bg: #e6e9ef;          /* surface1 */
+  --border-color: #ccd0da;     /* ui border */
+  --timeline-bg: #ffffff;      /* pure white base */
+  --scrollbar-bg: #e6e9ef;     /* surface1 */
+  --grid-line: rgba(0, 0, 0, 0.06);
+  --grid-text: #6c6f85;        /* subtext0 */
+  
+  /* Цвета ползунка скроллбара */
+  --thumb-bg: #bcc0cc;         /* surface0 */
+  --thumb-border: #acb0be;     /* overlay0 */
+  --thumb-hover: #acb0be;
+  --thumb-active: #8c8fa1;     /* overlay2 */
+  
+  /* Контекстное меню (отделяем от скроллбара) */
+  --menu-bg: #e6e9ef;          /* mantle */
+  --menu-item-hover: #ccd0da;  /* surface0 */
+
+  /* СБАЛАНСИРОВАННЫЕ ПАСТЕЛЬНЫЕ ЦВЕТА (Плотность 0.55 - 0.65) */
+  --tag-color: rgba(30, 102, 245, 0.55);     /* Умеренно-синий */
+  --worked-color: rgba(64, 160, 43, 0.65);   /* Приятный зеленый */
+  --idle-color: rgba(223, 142, 29, 0.65);    /* Мягкий янтарный */
+  --off-color: rgba(210, 15, 57, 0.55);      /* Приглушенный красный */
+  --item-bg: rgba(136, 57, 239, 0.5);        /* Аккуратный лавандовый */
+  --selection-color: rgba(30, 102, 245, 0.12);
+}
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  margin: 20px;
+  user-select: none;
+}
+.controls-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+h1 { font-size: 1.3rem; margin: 0; }
+.help-text { font-size: 0.8rem; color: #a6adc8; margin-right: 15px; }
+.btn {
+  background: var(--line-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.btn:hover { 
+  background: var(--thumb-bg); /* Мягкое затемнение в светлой и осветление в темной теме */
+}
+.timeline-container {
+  position: relative;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--timeline-bg); /* Изучаем динамический фон */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.timeline-body { 
+  position: relative; 
+  width: 100%; 
+}
+.grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 120px;
+  right: 0;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.grid-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed var(--grid-line);
+  box-sizing: border-box;
+}
+.grid-label {
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  color: var(--grid-text); /* Динамический цвет текста сетки */
+  background: var(--timeline-bg); /* Подстраиваем фон подложки часов */
+  padding: 0 4px;
+}
+.hover-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #f5c2e7;
+  box-shadow: 0 0 4px #f5c2e7;
+  pointer-events: none;
+  z-index: 5;
+  display: none;
+}
+.timeline-row {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  z-index: 2;
+}
+.row-label {
+  width: 120px;
+  min-width: 120px;
+  padding-left: 15px;
+  font-weight: bold;
+  text-transform: capitalize;
+  background: var(--line-bg);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--border-color);
+  box-sizing: border-box;
+  z-index: 10;
+}
+.row-track {
+  position: relative;
+  flex-grow: 1;
+  height: 100%;
+  cursor: crosshair;
+}
+.time-block {
+  position: absolute;
+  top: 10px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 4;
+  font-weight: 600; /* Делаем шрифт чуть толще */
+}
+
+.time-block.tag { background: var(--tag-color); border-color: #89b4fa; cursor: pointer; }
+.time-block.worked { background: var(--worked-color); }
+.time-block.idle { background: var(--idle-color); color: #11111b; }
+.time-block.off { background: var(--off-color); }
+.time-block.process, .time-block.documents { background: var(--item-bg); }
+.light-theme .time-block {
+  color: #202233 !important;
+  font-weight: 500;
+}
+.drag-selection-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 120px;                     /* Сдвигаем вправо на ширину текстовых подписей */
+  width: calc(100% - 120px);       /* Жестко вычитаем ширину подписей из общей ширины */
+  pointer-events: none;
+  z-index: 3;
+  box-sizing: border-box;          /* Гарантируем точный расчет пикселей */
+}
+.drag-selection-inner {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--selection-color); /* Динамический цвет выделения */
+  border-left: 1px dashed #89b4fa;
+  border-right: 1px dashed #89b4fa;
+  height: 100%;
+  pointer-events: auto;
+}
+.scrollbar-row {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  background: var(--scrollbar-bg);
+  border-top: 2px solid var(--border-color);
+}
+.scroll-label {
+  background: var(--timeline-bg); /* Динамически подстраивается под тему */
+  font-size: 0.75rem;
+  color: var(--text-color);       /* Использует основной цвет текста темы */
+}
+.scrollbar-track {
+  position: relative;
+  flex-grow: 1;
+  height: 100%;
+  background: var(--timeline-bg); /* Использует подложку основного таймлайна */
+  cursor: pointer;
+}
+.scroller-activity-bar {
+  position: absolute;
+  height: 4px;
+  bottom: 2px;
+  background-color: var(--worked-color);
+  pointer-events: none;
+  z-index: 2;
+}
+.scrollbar-thumb {
+  position: absolute;
+  top: 2px;
+  height: 24px;
+  background: var(--thumb-bg);
+  border: 1px solid var(--thumb-border);
+  border-radius: 4px;
+  cursor: grab;
+  box-sizing: border-box;
+  transition: background-color 0.1s, opacity 0.1s;
+  z-index: 1;
+  opacity: 0.85; 
+}
+
+.scrollbar-thumb:hover { 
+  background: var(--thumb-hover); 
+  opacity: 1; 
+}
+
+.scrollbar-thumb:active { 
+  cursor: grabbing; 
+  background: var(--thumb-active); 
+  opacity: 1; 
+}
+.scrollbar-cap {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: var(--grid-text);        /* Использует адаптивный цвет разметки сетки */
+  background: var(--scrollbar-bg); /* Фон плашек соответствует фону строки скролла */
+  padding: 2px 5px;
+  border-radius: 3px;
+  z-index: 3;                     /* Отображаются поверх ползунка и мини-карты */
+}
+.left-cap { left: 10px; }
+.right-cap { right: 10px; }
+.resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  z-index: 10;
+}
+.resize-handle.left {
+  left: -4px;
+}
+.resize-handle.right {
+  right: -4px;
+}
+#rbm-context-menu {
+  background: var(--menu-bg); /* Теперь не сливается со скроллбаром */
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 160px;
+}
+
+#rbm-context-menu .menu-info {
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  color: var(--grid-text);
+  font-family: monospace;
+  border-bottom: 1px solid var(--border-color); /* Адаптивная линия */
+  margin-bottom: 4px;
+}
+
+#rbm-context-menu .menu-item {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: var(--text-color); /* Читаемый основной текст */
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+#rbm-context-menu .menu-item:hover {
+  background: var(--menu-item-hover); /* Мягкий контрастный ховер */
+}
+
+#rbm-context-menu .menu-item.cancel {
+  color: #d20f3a; /* Официальный красный Catppuccin Latte */
+}
+
+#rbm-context-menu .menu-item.cancel:hover {
+  background: rgba(210, 15, 57, 0.1);
+}
+

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Activity Timeline Viewer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="controls-toolbar">
+    <h1 id="timeline-header">Local Activity Tracker Timeline</h1>
+    <div class="toolbar-actions">
+      <span class="help-text">Left-Click Drag to Select | Right-Click for Menu | Scrollbar or Middle-Click Drag to Pan | Scroll to Zoom</span>
+      <button id="time-format-toggle" class="btn">Switch to 12h</button>
+      <button id="theme-toggle" class="btn">☀️ Light Mode</button>
+    </div>
+  </div>
+ 
+  <div class="timeline-container" id="timeline-container">
+    <div class="timeline-body">
+      <div id="grid-overlay" class="grid-overlay"></div>
+      <div id="hover-line" class="hover-line"></div>
+      
+      <div id="drag-selection-container" class="drag-selection-container"></div>
+
+      <!-- Tags Track -->
+      <div class="timeline-row">
+        <div class="row-label">Tags</div>
+        <div class="row-track" id="track-tags"></div>
+      </div>
+      <!-- Activity Track -->
+      <div class="timeline-row">
+        <div class="row-label">Activity</div>
+        <div class="row-track" id="track-activity"></div>
+      </div>
+      <!-- Process Track -->
+      <div class="timeline-row">
+        <div class="row-label">Process</div>
+        <div class="row-track" id="track-process"></div>
+      </div>
+      <!-- Documents Track -->
+      <div class="timeline-row">
+        <div class="row-label">Documents</div>
+        <div class="row-track" id="track-documents"></div>
+      </div>
+    </div>
+    
+    <!-- Scrollbar Track Row -->
+    <div class="scrollbar-row">
+      <div class="row-label scroll-label">Time Overview</div>
+      <div class="scrollbar-track" id="scrollbar-track">
+        <div class="scrollbar-thumb" id="scrollbar-thumb"></div>
+        <div class="scrollbar-cap left-cap">00:00</div>
+        <div class="scrollbar-cap right-cap">24:00</div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="api.js"></script>
+  <script src="state.js"></script>
+  <script src="renderer.js"></script>
+  <script src="events.js"></script>
+</body>
+</html>
