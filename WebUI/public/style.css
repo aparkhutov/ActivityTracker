@@ -1,454 +1,430 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+:root {
+  --bg-color: #1e1e2e;
+  --text-color: #cdd6f4;
+  --line-bg: #313244;
+  --border-color: #45475a;
+  --timeline-bg: #11111b;
+  --scrollbar-bg: #181825;
+  --grid-line: rgba(255, 255, 255, 0.08);
+  --grid-text: #7f849c;
+  
+  /* Новые переменные для ползунка скроллбара */
+  --thumb-bg: #45475a;
+  --thumb-border: #585b70;
+  --thumb-hover: #585b70;
+  --thumb-active: #7f849c;
+
+  --tag-color: rgba(137, 180, 250, 0.4);
+  --worked-color: rgba(166, 227, 161, 0.6);
+  --idle-color: rgba(249, 226, 175, 0.6);
+  --off-color: rgba(243, 139, 168, 0.4);
+  --item-bg: rgba(203, 166, 247, 0.3);
+  --selection-color: rgba(137, 180, 250, 0.15);
 }
 
+/* Дневная тема при переключении (Catppuccin Latte) */
+:root.light-theme {
+  --bg-color: #eff1f5;         /* base */
+  --text-color: #4c4f69;       /* text */
+  --line-bg: #e6e9ef;          /* surface1 */
+  --border-color: #ccd0da;     /* ui border */
+  --timeline-bg: #ffffff;      /* pure white base */
+  --scrollbar-bg: #e6e9ef;     /* surface1 */
+  --grid-line: rgba(0, 0, 0, 0.06);
+  --grid-text: #6c6f85;        /* subtext0 */
+  
+  /* Цвета ползунка скроллбара */
+  --thumb-bg: #bcc0cc;         /* surface0 */
+  --thumb-border: #acb0be;     /* overlay0 */
+  --thumb-hover: #acb0be;
+  --thumb-active: #8c8fa1;     /* overlay2 */
+  
+  /* Контекстное меню (отделяем от скроллбара) */
+  --menu-bg: #e6e9ef;          /* mantle */
+  --menu-item-hover: #ccd0da;  /* surface0 */
+
+  /* СБАЛАНСИРОВАННЫЕ ПАСТЕЛЬНЫЕ ЦВЕТА (Плотность 0.55 - 0.65) */
+  --tag-color: rgba(30, 102, 245, 0.55);     /* Умеренно-синий */
+  --worked-color: rgba(64, 160, 43, 0.65);   /* Приятный зеленый */
+  --idle-color: rgba(223, 142, 29, 0.65);    /* Мягкий янтарный */
+  --off-color: rgba(210, 15, 57, 0.55);      /* Приглушенный красный */
+  --item-bg: rgba(136, 57, 239, 0.5);        /* Аккуратный лавандовый */
+  --selection-color: rgba(30, 102, 245, 0.12);
+}
 body {
-  font-family: Arial, sans-serif;
-  margin: 40px;
-  background: #f5f5f5;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  margin: 20px;
+  user-select: none;
 }
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-h1 {
-  color: #333;
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.legend {
-  text-align: center;
-  color: #666;
-  margin: 20px 0;
-  font-size: 14px;
-}
-
-  .legend span {
-    display: inline-block;
-    margin: 0 15px;
-  }
-
-.dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  margin-right: 5px;
-  vertical-align: middle;
-}
-
-  .dot.green {
-    background: #43a047;
-  }
-
-  .dot.red {
-    background: #e53935;
-  }
-
-  .dot.tag-dot {
-    background: #ff9800;
-    border: 1px solid #e65100;
-  }
-
-.tag-row-container {
-  position: relative;
-  margin: 10px 0 5px 0;
-}
-
-.tag-row {
+.controls-toolbar {
   display: flex;
-  height: 50px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 2px solid #ff9800;
-  background: #fff3e0;
-  position: relative;
-}
-
-  .tag-row .tag-placeholder {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-    font-style: italic;
-    font-size: 14px;
-  }
-
-.tag-item {
-  display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  height: 100%;
-  font-size: 11px;
-  font-weight: bold;
-  color: #e65100;
-  background: rgba(255, 152, 0, 0.15);
-  border-right: 1px solid rgba(255, 152, 0, 0.3);
-  position: relative;
-  min-width: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-  padding: 2px 4px;
-  text-align: center;
-}
-
-  .tag-item:hover {
-    background: rgba(255, 152, 0, 0.3);
-    transform: scaleY(1.15);
-    z-index: 5;
-  }
-
-  .tag-item .tag-name {
-    font-size: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 80px;
-    line-height: 1.2;
-  }
-
-  .tag-item .tag-range {
-    font-size: 8px;
-    color: #999;
-    font-weight: normal;
-  }
-
-  .tag-item .tag-tooltip {
-    display: none;
-    position: absolute;
-    bottom: 55px;
-    background: rgba(0,0,0,0.8);
-    color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 11px;
-    white-space: nowrap;
-    z-index: 100;
-  }
-
-  .tag-item:hover .tag-tooltip {
-    display: block;
-  }
-
-.tag-row-label {
-  text-align: center;
-  font-size: 11px;
-  color: #999;
-  margin-top: 2px;
-}
-
-.chart-container {
-  position: relative;
-  margin: 5px 0 10px 0;
-}
-
-.chart {
-  display: flex;
-  height: 60px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 2px solid #ddd;
-}
-
-.segment {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: white;
-  font-weight: bold;
-  font-size: 14px;
-  transition: all 0.3s;
-  cursor: default;
-  position: relative;
-  min-width: 20px;
-}
-
-  .segment.green {
-    background: linear-gradient(135deg, #43a047, #66bb6a);
-  }
-
-  .segment.red {
-    background: linear-gradient(135deg, #e53935, #ef5350);
-  }
-
-  .segment .tooltip {
-    display: none;
-    position: absolute;
-    bottom: 65px;
-    background: rgba(0,0,0,0.8);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-size: 12px;
-    white-space: nowrap;
-    z-index: 100;
-  }
-
-  .segment:hover .tooltip {
-    display: block;
-  }
-
-.chart-label {
-  text-align: center;
-  font-size: 11px;
-  color: #999;
-  margin-top: 2px;
-}
-
-.stats {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 30px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  flex-wrap: wrap;
-}
-
-  .stats div {
-    text-align: center;
-    margin: 5px 15px;
-  }
-
-  .stats .number {
-    font-size: 24px;
-    font-weight: bold;
-  }
-
-  .stats .label {
-    color: #666;
-    font-size: 14px;
-    margin-top: 5px;
-  }
-
-  .stats .green {
-    color: #43a047;
-  }
-
-  .stats .red {
-    color: #e53935;
-  }
-
-  .stats .orange {
-    color: #ff9800;
-  }
-
-.tag-form {
-  margin: 30px 0;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-}
-
-  .tag-form h3 {
-    margin-bottom: 15px;
-    color: #333;
-  }
-
-.form-row {
-  display: flex;
+  margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 15px;
-  margin-bottom: 15px;
-  align-items: flex-end;
 }
-
-.form-group {
-  flex: 1;
-  min-width: 120px;
-}
-
-  .form-group.full-width {
-    flex: 0 0 100%;
-  }
-
-  .form-group label {
-    display: block;
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 4px;
-    font-weight: bold;
-  }
-
-  .form-group input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #2196f3;
-      box-shadow: 0 0 0 2px rgba(33,150,243,0.2);
-    }
-
-button {
-  padding: 8px 20px;
-  border: none;
+h1 { font-size: 1.3rem; margin: 0; }
+.help-text { font-size: 0.8rem; color: #a6adc8; margin-right: 15px; }
+.btn {
+  background: var(--line-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
   border-radius: 4px;
-  font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
-  font-weight: bold;
+  font-weight: 500;
+  transition: background 0.2s;
 }
-
-  button#saveTagBtn {
-    background: #2196f3;
-    color: white;
-  }
-
-    button#saveTagBtn:hover {
-      background: #1976d2;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(33,150,243,0.3);
-    }
-
-  button#clearTagBtn {
-    background: #757575;
-    color: white;
-  }
-
-    button#clearTagBtn:hover {
-      background: #616161;
-      transform: translateY(-2px);
-    }
-
-  button#deleteTagBtn {
-    background: #f44336;
-    color: white;
-  }
-
-    button#deleteTagBtn:hover {
-      background: #d32f2f;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(244,67,54,0.3);
-    }
-
-.tag-message {
-  margin-top: 10px;
-  padding: 8px;
-  border-radius: 4px;
+.btn:hover { 
+  background: var(--thumb-bg); /* Мягкое затемнение в светлой и осветление в темной теме */
+}
+.timeline-container {
+  position: relative;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--timeline-bg); /* Изучаем динамический фон */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.timeline-body { 
+  position: relative; 
+  width: 100%; 
+}
+.grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 120px;
+  right: 0;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.grid-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed var(--grid-line);
+  box-sizing: border-box;
+}
+.grid-label {
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  color: var(--grid-text); /* Динамический цвет текста сетки */
+  background: var(--timeline-bg); /* Подстраиваем фон подложки часов */
+  padding: 0 4px;
+}
+.hover-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #f5c2e7;
+  box-shadow: 0 0 4px #f5c2e7;
+  pointer-events: none;
+  z-index: 5;
   display: none;
 }
-
-  .tag-message.success {
-    display: block;
-    background: #c8e6c9;
-    color: #2e7d32;
-  }
-
-  .tag-message.error {
-    display: block;
-    background: #ffcdd2;
-    color: #c62828;
-  }
-
-.table-container {
-  margin-top: 30px;
-  overflow-x: auto;
+.timeline-row {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  z-index: 2;
 }
-
-.tags-table-container {
-  margin-top: 30px;
-  overflow-x: auto;
+.row-label {
+  width: 120px;
+  min-width: 120px;
+  padding-left: 15px;
+  font-weight: bold;
+  text-transform: capitalize;
+  background: var(--line-bg);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--border-color);
+  box-sizing: border-box;
+  z-index: 10;
 }
-
-  .tags-table-container h3 {
-    margin-bottom: 10px;
-    color: #333;
-  }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+.row-track {
+  position: relative;
+  flex-grow: 1;
+  height: 100%;
+  cursor: crosshair;
 }
-
-th {
-  background: #f8f9fa;
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: left;
-}
-
-td {
-  padding: 8px;
-  border: 1px solid #ddd;
-}
-
-  td.status-active {
-    color: #43a047;
-    font-weight: bold;
-  }
-
-  td.status-inactive {
-    color: #e53935;
-    font-weight: bold;
-  }
-
-  td.tag-name-cell {
-    color: #ff9800;
-    font-weight: bold;
-  }
-
-tr:hover {
-  background: #f8f9fa;
-}
-
-.delete-tag-btn {
-  background: #f44336;
-  color: white;
-  border: none;
-  padding: 4px 12px;
+.time-block {
+  position: absolute;
+  top: 10px;
+  height: 40px;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 4;
+  font-weight: 600; /* Делаем шрифт чуть толще */
+}
+
+.time-block.tag { background: var(--tag-color); border-color: #89b4fa; cursor: pointer; }
+.time-block.worked { background: var(--worked-color); }
+.time-block.idle { background: var(--idle-color); color: #11111b; }
+.time-block.off { background: var(--off-color); }
+.time-block.process, .time-block.documents { background: var(--item-bg); }
+.light-theme .time-block {
+  color: #202233 !important;
+  font-weight: 500;
+}
+.drag-selection-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 120px;                     /* Сдвигаем вправо на ширину текстовых подписей */
+  width: calc(100% - 120px);       /* Жестко вычитаем ширину подписей из общей ширины */
+  pointer-events: none;
+  z-index: 3;
+  box-sizing: border-box;          /* Гарантируем точный расчет пикселей */
+}
+.drag-selection-inner {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--selection-color); /* Динамический цвет выделения */
+  border-left: 1px dashed #89b4fa;
+  border-right: 1px dashed #89b4fa;
+  height: 100%;
+  pointer-events: auto;
+}
+.scrollbar-row {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  background: var(--scrollbar-bg);
+  border-top: 2px solid var(--border-color);
+}
+.scroll-label {
+  background: var(--timeline-bg); /* Динамически подстраивается под тему */
+  font-size: 0.75rem;
+  color: var(--text-color);       /* Использует основной цвет текста темы */
+}
+.scrollbar-track {
+  position: relative;
+  flex-grow: 1;
+  height: 100%;
+  background: var(--timeline-bg); /* Использует подложку основного таймлайна */
   cursor: pointer;
-  font-size: 12px;
+}
+.scroller-activity-bar {
+  position: absolute;
+  height: 4px;
+  bottom: 2px;
+  background-color: var(--worked-color);
+  pointer-events: none;
+  z-index: 2;
+}
+.scrollbar-thumb {
+  position: absolute;
+  top: 2px;
+  height: 24px;
+  background: var(--thumb-bg);
+  border: 1px solid var(--thumb-border);
+  border-radius: 4px;
+  cursor: grab;
+  box-sizing: border-box;
+  transition: background-color 0.1s, opacity 0.1s;
+  z-index: 1;
+  opacity: 0.85; 
 }
 
-  .delete-tag-btn:hover {
-    background: #d32f2f;
-  }
+.scrollbar-thumb:hover { 
+  background: var(--thumb-hover); 
+  opacity: 1; 
+}
 
-.loading {
+.scrollbar-thumb:active { 
+  cursor: grabbing; 
+  background: var(--thumb-active); 
+  opacity: 1; 
+}
+.scrollbar-cap {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: var(--grid-text);        /* Использует адаптивный цвет разметки сетки */
+  background: var(--scrollbar-bg); /* Фон плашек соответствует фону строки скролла */
+  padding: 2px 5px;
+  border-radius: 3px;
+  z-index: 3;                     /* Отображаются поверх ползунка и мини-карты */
+}
+.left-cap { left: 10px; }
+.right-cap { right: 10px; }
+.resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  z-index: 10;
+}
+.resize-handle.left {
+  left: -4px;
+}
+.resize-handle.right {
+  right: -4px;
+}
+#rbm-context-menu {
+  background: var(--menu-bg); /* Теперь не сливается со скроллбаром */
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 160px;
+}
+
+#rbm-context-menu .menu-info {
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  color: var(--grid-text);
+  font-family: monospace;
+  border-bottom: 1px solid var(--border-color); /* Адаптивная линия */
+  margin-bottom: 4px;
+}
+
+#rbm-context-menu .menu-item {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: var(--text-color); /* Читаемый основной текст */
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+#rbm-context-menu .menu-item:hover {
+  background: var(--menu-item-hover); /* Мягкий контрастный ховер */
+}
+
+#rbm-context-menu .menu-item.cancel {
+  color: #d20f3a; /* Официальный красный Catppuccin Latte */
+}
+
+#rbm-context-menu .menu-item.cancel:hover {
+  background: rgba(210, 15, 57, 0.1);
+}
+
+#drag-hint-range {
+  width: 100%;
   text-align: center;
-  padding: 40px;
-  color: #666;
+  margin-top: 15px;
+  font-size: 0.85rem;
+  color: #f5c2e7; /* Магнето-розовый акцент Catppuccin */
 }
 
-@media (max-width: 768px) {
-  body {
-    margin: 20px;
-  }
+/* Fixed transparent backdrop for dimming and blocking main interface */
+.settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(17, 17, 27, 0.65); /* Catppuccin mantle-based transparency */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000; /* Must render above custom context menu and timeline rows */
+}
 
-  .container {
-    padding: 20px;
-  }
+/* Centered responsive dialog box using theme colors */
+.settings-modal {
+  background-color: var(--timeline-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 320px; /* Compact width according to layout design */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+}
 
-  .form-group {
-    min-width: 100%;
-  }
+.settings-modal h2 {
+  font-size: 1.15rem;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
 
-  .stats {
-    flex-direction: column;
-    align-items: center;
-  }
+/* Layout configurations for form rows */
+.settings-form-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
 
-    .stats div {
-      margin: 10px 0;
-    }
+.settings-form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Styled select dropdowns and numerical input boxes */
+.settings-form-group select,
+.settings-form-group input[type="number"] {
+  background-color: var(--line-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  width: 140px; /* Fixed width to align form elements perfectly */
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.settings-form-group select:focus,
+.settings-form-group input[type="number"]:focus {
+  border-color: #89b4fa; /* Accent blue color for focus states */
+}
+
+/* Action button area layout alignment */
+.settings-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+}
+
+/* Color definitions for save and cancel actions */
+.btn-save {
+  background-color: rgba(166, 227, 161, 0.2) !important; /* Pastel green hue */
+  border-color: #a6e3a1 !important;
+}
+
+.btn-save:hover {
+  background-color: var(--worked-color) !important;
+}
+
+.btn-cancel {
+  background-color: rgba(243, 139, 168, 0.2) !important; /* Pastel red hue */
+  border-color: #f38ba8 !important;
+}
+
+.btn-cancel:hover {
+  background-color: var(--off-color) !important;
 }
