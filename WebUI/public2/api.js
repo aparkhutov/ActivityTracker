@@ -1,6 +1,6 @@
 let mockDataStorage = {
   "data": {
-    "date": "2026-08-26",
+    "date": "2026-08-29",
     "tags": [
       { "id": 1, "start": 28800, "end": 36000, "label": "morning sync" },
       { "id": 2, "start": 43200, "end": 54600, "label": "rdp development" }
@@ -13,7 +13,7 @@ let mockDataStorage = {
       { "start": 43200, "end": 54600, "status": "rdp" },
       { "start": 54600, "end": 56220, "status": "rdp-idle" },
       { "start": 56220, "end": 60000, "status": "rdp" },
-      { "start": 60000, "end": 86400, "status": "off" }
+      { "start": 60000, "end": 70000, "status": "off" }
     ],
     "process": [
       { "start": 28800, "end": 36000, "name": "slack.exe" },
@@ -50,7 +50,14 @@ const ApiService = {
     }
   },
 
+  // Get timeline data with support for date, idle threshold and incremental 'from' second
   async getTimeline(date, idle, from = 0) {
+    // Fallback to active settings if parameters are omitted
+    if (!idle) {
+      const settings = await this.getBackendSettings();
+      idle = settings.idle;
+    }
+
     if (isServerOnline) {
       try {
         const url = `/api/timeline?date=${date}&idle=${idle}&from=${from}`;
@@ -70,10 +77,8 @@ const ApiService = {
       window.timelineData.data = { date: date, tags: [], activity: [], process: [], documents: [] };
       return;
     }
-
     const src = mockDataStorage.data;
     const filterFn = (item) => item.end > from;
-
     window.timelineData.data = {
       date: src.date,
       tags: src.tags.filter(filterFn),
@@ -89,7 +94,7 @@ const ApiService = {
         await fetch('/api/tags', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ start_in_seconds: startSec, end_in_seconds: endSec, label: label })
+          body: JSON.stringify({ start: startSec, end: endSec, label: label })
         });
       } catch (err) {
         console.error(err);
@@ -113,6 +118,36 @@ const ApiService = {
       }
     } else {
       mockDataStorage.data.tags = mockDataStorage.data.tags.filter(t => t.id !== id);
+    }
+  },
+
+  // Fetch settings.json from the C++ server root or fallback to local storage
+  async getBackendSettings() {
+    if (isServerOnline) {
+      try {
+        const response = await fetch('/settings.json');
+        if (response.ok)
+          return await response.json();
+      } catch (err) {
+        console.error('Failed to fetch server settings:', err);
+      }
+    }
+    return { idle: parseInt(localStorage.getItem('backend_idle') || '10', 10) };
+  },
+
+  // Save config directly to the server as a flat JSON profile
+  async saveBackendSettings(settings) {
+    localStorage.setItem('backend_idle', settings.idle.toString());
+    if (!isServerOnline)
+      return;
+    try {
+      await fetch('/settings.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      });
+    } catch (err) {
+      console.error('Failed to upload settings:', err);
     }
   }
 };

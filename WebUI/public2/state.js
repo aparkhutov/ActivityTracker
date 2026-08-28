@@ -20,12 +20,23 @@ const uiState = {
   trackWidth: 0
 };
 
+const formatter12 = new Intl.DateTimeFormat([], {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true,
+  timeZone: 'UTC'
+});
+
+const formatter24 = new Intl.DateTimeFormat([], {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+  timeZone: 'UTC'
+});
+
 function formatHourText(timestampSec) {
-  const formatter = new Intl.DateTimeFormat([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: !is24HourFormat,
-    timeZone: 'UTC'
-  });
-  return formatter.format(new Date(timestampSec * 1000));
+  if (is24HourFormat)
+    return formatter24.format(new Date(timestampSec * 1000));
+  else 
+    return formatter12.format(new Date(timestampSec * 1000));
 }

@@ -3,17 +3,32 @@ const dom = {
   gridOverlay: document.getElementById('grid-overlay'),
   hoverLine: document.getElementById('hover-line'),
   container: document.getElementById('timeline-container'),
-  formatToggle: document.getElementById('time-format-toggle'),
   scrollTrack: document.getElementById('scrollbar-track'),
   scrollThumb: document.getElementById('scrollbar-thumb'),
   header: document.getElementById('timeline-header'),
   dragSelectionContainer: document.getElementById('drag-selection-container'),
-  themeToggle : document.getElementById('theme-toggle')
+  settingsOpenBtn: document.getElementById('settings-open-btn'),
+  settingsOverlay: document.getElementById('settings-modal-overlay'),
+  settingsCancelBtn: document.getElementById('settings-cancel-btn'),
+  settingsSaveBtn: document.getElementById('settings-save-btn'),
+  settingsTheme: document.getElementById('settings-theme'),
+  settingsFormat: document.getElementById('settings-time-format'),
+  settingsIdle: document.getElementById('settings-idle-threshold')
 };
 
 async function initTimeline() {
   await ApiService.checkServerStatus();
-  await ApiService.getTimeline("2026-08-26", 10, 0); 
+  
+  const settings = await ApiService.getBackendSettings();
+  const currentIdle = settings.idle;
+
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const currentDateStr = `${yyyy}-${mm}-${dd}`;
+  
+  await ApiService.getTimeline(currentDateStr, currentIdle, 0); 
   
   const lines = window.timelineData.data;
   const timestamps = [];
@@ -50,26 +65,36 @@ async function initTimeline() {
     dom.header.textContent = `Activity Tracker Timeline — ${baseDate.toLocaleDateString('en-US', options)}`;
   }
   
-  dom.formatToggle.textContent = is24HourFormat ? "Switch to 12h" : "Switch to 24h";
   renderView();
 }
 
 function renderView() {
-  const lines = window.timelineData.day;
- 
-  ['tags', 'activity', 'process', 'documents'].forEach(key => {
-    const track = document.getElementById(`track-${key}`);
-    if (track) track.innerHTML = '';
-  });
+  const lines = window.timelineData.data;
+  if (!lines)
+    return;
 
+  const tracks = ['tags', 'activity', 'process', 'documents'];
+  for (let i = 0; i < tracks.length; i++) {
+    const track = document.getElementById(`track-${tracks[i]}`);
+    if (track) 
+      track.innerHTML = '';
+  }
+  
   buildVerticalGrid();
   updateScrollbarThumb();
   updateDragSelectionPosition();
   
-  if (lines.tags) lines.tags.forEach(t => createBlock('tags', t.start, t.end, t.label, 'tag', t.id));
-  if (lines.activity) lines.activity.forEach(a => createBlock('activity', a.start, a.end, a.status, a.status, a.start));
-  if (lines.process) lines.process.forEach(p => createBlock('process', p.start, p.end, p.name, 'process', p.start));
-  if (lines.documents) lines.documents.forEach(d => createBlock('documents', d.start, d.end, d.doc || '[No Document]', 'documents', d.start));
+  if (lines.tags) 
+    lines.tags.forEach(t => createBlock('tags', t.start, t.end, t.label, 'tag', t.id));
+    
+  if (lines.activity) 
+    lines.activity.forEach(a => createBlock('activity', a.start, a.end, a.status, a.status, a.start));
+    
+  if (lines.process) 
+    lines.process.forEach(p => createBlock('process', p.start, p.end, p.name, 'process', p.start));
+    
+  if (lines.documents) 
+    lines.documents.forEach(d => createBlock('documents', d.start, d.end, d.doc || '[No Document]', 'documents', d.start));
 }
 
 function buildVerticalGrid() {
@@ -99,32 +124,34 @@ function buildVerticalGrid() {
 
 function createBlock(trackKey, start, end, label, className, nativeId) {
   const currentDuration = viewMaxTime - viewMinTime;
-  if (end < viewMinTime || start > viewMaxTime) return;
-  
+  if (end < viewMinTime || start > viewMaxTime)
+    return;
+ 
   const visibleStart = Math.max(start, viewMinTime);
   const visibleEnd = Math.min(end, viewMaxTime);
-  
+ 
   const leftPct = ((visibleStart - viewMinTime) / currentDuration) * 100;
   const widthPct = ((visibleEnd - visibleStart) / currentDuration) * 100;
-  
+ 
   const track = document.getElementById(`track-${trackKey}`);
-  if (!track) return;
-  
+  if (!track)
+    return;
+ 
   const block = document.createElement('div');
   block.className = `time-block ${className}`;
   block.style.left = `${leftPct}%`;
   block.style.width = `calc(${widthPct}% - 2px)`; 
   block.textContent = label;
   block.title = `${label} (${formatHourText(start)} - ${formatHourText(end)})`;
-  
+ 
   if (trackKey === 'tags') {
     block.addEventListener('dblclick', async (e) => {
       e.stopPropagation();
-      if (confirm("Delete this tag?")) {
-        await ApiService.deleteTag(nativeId);
-        await ApiService.getTimeline();
-        renderView();
-      }
+      if (!confirm("Delete this tag?"))
+        return;
+        
+      await ApiService.deleteTag(nativeId);
+      await initTimeline();
     });
   }
   track.appendChild(block);

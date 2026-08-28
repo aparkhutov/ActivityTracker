@@ -323,3 +323,108 @@ h1 { font-size: 1.3rem; margin: 0; }
   background: rgba(210, 15, 57, 0.1);
 }
 
+#drag-hint-range {
+  width: 100%;
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.85rem;
+  color: #f5c2e7; /* Магнето-розовый акцент Catppuccin */
+}
+
+/* Fixed transparent backdrop for dimming and blocking main interface */
+.settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(17, 17, 27, 0.65); /* Catppuccin mantle-based transparency */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000; /* Must render above custom context menu and timeline rows */
+}
+
+/* Centered responsive dialog box using theme colors */
+.settings-modal {
+  background-color: var(--timeline-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 320px; /* Compact width according to layout design */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+}
+
+.settings-modal h2 {
+  font-size: 1.15rem;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+/* Layout configurations for form rows */
+.settings-form-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.settings-form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Styled select dropdowns and numerical input boxes */
+.settings-form-group select,
+.settings-form-group input[type="number"] {
+  background-color: var(--line-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  width: 140px; /* Fixed width to align form elements perfectly */
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.settings-form-group select:focus,
+.settings-form-group input[type="number"]:focus {
+  border-color: #89b4fa; /* Accent blue color for focus states */
+}
+
+/* Action button area layout alignment */
+.settings-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+}
+
+/* Color definitions for save and cancel actions */
+.btn-save {
+  background-color: rgba(166, 227, 161, 0.2) !important; /* Pastel green hue */
+  border-color: #a6e3a1 !important;
+}
+
+.btn-save:hover {
+  background-color: var(--worked-color) !important;
+}
+
+.btn-cancel {
+  background-color: rgba(243, 139, 168, 0.2) !important; /* Pastel red hue */
+  border-color: #f38ba8 !important;
+}
+
+.btn-cancel:hover {
+  background-color: var(--off-color) !important;
+}
