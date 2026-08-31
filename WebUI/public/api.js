@@ -74,8 +74,8 @@ const ApiService = {
 
   getMockTimeline(date, from) {
     if (date !== mockDataStorage.data.date) {
-      window.timelineData.data = { date: date, tags: [], activity: [], process: [], documents: [] };
-      return;
+      //window.timelineData.data = { date: date, tags: [], activity: [], process: [], documents: [] };
+      //return;
     }
     const src = mockDataStorage.data;
     const filterFn = (item) => item.end > from;
