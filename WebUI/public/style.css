@@ -51,6 +51,7 @@
   --item-bg: rgba(136, 57, 239, 0.5);        /* Аккуратный лавандовый */
   --selection-color: rgba(30, 102, 245, 0.12);
 }
+
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-color);
@@ -156,7 +157,7 @@ h1 { font-size: 1.3rem; margin: 0; }
   position: relative;
   flex-grow: 1;
   height: 100%;
-  cursor: crosshair;
+  /* cursor: crosshair; */
 }
 .time-block {
   position: absolute;
@@ -177,8 +178,8 @@ h1 { font-size: 1.3rem; margin: 0; }
 }
 
 .time-block.tag { background: var(--tag-color); border-color: #89b4fa; cursor: pointer; }
-.time-block.worked { background: var(--worked-color); }
-.time-block.idle { background: var(--idle-color); color: #11111b; }
+.time-block.console, .time-block.rdp { background: var(--worked-color); }
+.time-block.idle, .time-block.console-idle, .time-block.rdp-idle { background: var(--idle-color); color: #11111b; }
 .time-block.off { background: var(--off-color); }
 .time-block.process, .time-block.documents { background: var(--item-bg); }
 .light-theme .time-block {
@@ -427,4 +428,54 @@ h1 { font-size: 1.3rem; margin: 0; }
 
 .btn-cancel:hover {
   background-color: var(--off-color) !important;
+}
+
+/* Real-time floating mouse tooltip styling refinement */
+.custom-tooltip {
+  position: absolute;
+  transform: translate(15%, 15%);
+  /*transform: translate(-50%, -115%);*/
+   /* Anchor alignment centered above cursor */
+  background-color: var(--scrollbar-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  z-index: 2500;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.tooltip-time-cursor {
+  font-size: 0.75rem;
+  font-family: monospace;
+  font-weight: 700;
+  color: #f5c2e7; /* Accent magnet pink text for current active time slot */
+}
+
+.tooltip-time-range {
+  font-size: 0.65rem;
+  font-family: monospace;
+  color: var(--grid-text);
+}
+
+.tooltip-label-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Clear visual divider row for linked document data context */
+.custom-tooltip .doc-split {
+  margin-top: 4px;
+  border-top: 1px dashed var(--border-color);
+  padding-top: 4px;
+}
+
+/* Light theme color balance sync */
+.light-theme .tooltip-time-cursor {
+  color: #d20f3a;
 }

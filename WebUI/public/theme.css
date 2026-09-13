@@ -1,0 +1,36 @@
+/* Monolithic Adaptive Semantic Color Bridge Mapping */
+:root {
+  /* 1. Adaptive System Layout Backgrounds */
+  --bg-color: var(--ctp-base);
+  --timeline-bg: var(--ctp-crust);
+  --line-bg: var(--ctp-surface0);
+  --scrollbar-bg: var(--ctp-mantle);
+
+  /* 2. Adaptive Typography & Structural Borders */
+  --text-color: var(--ctp-text);
+  --border-color: var(--ctp-surface1);
+  --grid-line: var(--ctp-surface0);
+  --grid-text: var(--ctp-subtext0);
+
+  /* 3. Global System Interactive Accent Protocol */
+  --accent-color: var(--ctp-blue);
+  --selection-color: rgba(137, 180, 250, 0.15);
+
+  /* 4. Adaptive Scrollbar Thumb Component States */
+  --thumb-bg: var(--ctp-surface1);
+  --thumb-border: var(--ctp-surface2);
+  --thumb-hover: var(--ctp-surface2);
+  --thumb-active: var(--ctp-overlay1);
+
+  /* 5. Custom Right-Click Context Menu Context */
+  --menu-bg: var(--ctp-mantle);
+  --menu-item-hover: var(--ctp-surface0);
+  --menu-cancel-hover: rgba(243, 139, 168, 0.1);
+
+  /* 6. Self-Switching Timeline Density Solid Data Matrix */
+  --tag-color: var(--ctp-blue);
+  --worked-color: var(--ctp-green);
+  --idle-color: var(--ctp-yellow);
+  --off-color: var(--ctp-red);
+  --item-bg: var(--ctp-mauve);
+}

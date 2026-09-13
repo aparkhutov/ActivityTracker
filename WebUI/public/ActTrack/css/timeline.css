@@ -1,0 +1,101 @@
+.timeline-container {
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-timeline);
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.time-scale {
+    display: flex;
+    height: 30px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+    min-width: 1000px;
+}
+
+.time-tick {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: var(--text-scale);
+    top: 6px;
+}
+
+.timeline-rows {
+    min-width: 1000px;
+}
+
+.timeline-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    height: 50px;
+    transition: background-color 0.2s, border-left 0.2s;
+    cursor: pointer;
+    border-left: 4px solid transparent;
+}
+
+.timeline-row:hover {
+    background-color: var(--bg-timeline);
+}
+
+.timeline-row.is-selected {
+    background-color: var(--bg-selected-row);
+    border-left-color: var(--border-selected-row);
+}
+
+.timeline-row.is-selected .row-label {
+    background-color: var(--bg-selected-label);
+    color: var(--text-selected-label);
+}
+
+.row-label {
+    width: 120px;
+    min-width: 120px;
+    padding-left: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-light);
+    border-right: 1px solid var(--border-color);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    background: var(--bg-label);
+}
+
+.row-timeline {
+    flex-grow: 1;
+    position: relative;
+    height: 100%;
+    background: var(--bg-card);
+}
+
+.timeline-block {
+    position: absolute;
+    height: 70%;
+    top: 15%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bg-tag { background-color: var(--color-tag); }
+.bg-act-off { background-color: var(--color-act-off); }
+.bg-act-console { background-color: var(--color-act-console); }
+.bg-act-rdp { background-color: var(--color-act-rdp); }
+.bg-act-console-idle { background-color: var(--bg-act-console-idle); color: var(--text-act-console-idle); }
+.bg-act-rdp-idle { background-color: var(--bg-act-rdp-idle); color: var(--text-act-rdp-idle); }
+.bg-app { background-color: var(--color-app); }
+.timeline-block.is-document {
+    color: var(--text-primary);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}

@@ -1,0 +1,149 @@
+.col-content.no-header {
+    padding: 0;
+    overflow-y: auto;
+}
+
+input[type="checkbox"]:indeterminate {
+    accent-color: var(--color-indeterminate);
+}
+
+/* --- ЛЕВАЯ ТАБЛИЦА --- */
+.blocks-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+}
+
+.blocks-table th, .blocks-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.blocks-table th {
+    background: var(--bg-label);
+    color: var(--text-muted);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.blocks-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.blocks-table th.sortable:hover {
+    background-color: var(--border-hover);
+}
+
+.sort-icon {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 11px;
+    color: var(--text-scale);
+}
+
+th.sort-asc .sort-icon::before { content: "▲"; color: var(--color-tag); }
+th.sort-desc .sort-icon::before { content: "▼"; color: #3b82f6; }
+
+.blocks-table tbody tr:hover { background-color: var(--bg-timeline); }
+
+.row-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.icon-tags { background-color: var(--color-tag); }
+.icon-apps { background-color: var(--color-app); }
+.icon-docs { background-color: var(--color-doc-default); }
+.icon-activity { background-color: var(--color-act-off); }
+
+.time-badge {
+    color: var(--text-light);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* --- ПРАВАЯ ТАБЛИЦА И КАПСУЛЫ --- */
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+    border: none;
+}
+
+.dashboard-table tr,
+.dashboard-table td {
+    border: none !important;
+    padding: 6px 12px;
+    vertical-align: middle;
+    position: relative;
+    background: transparent !important;
+}
+
+.dashboard-table tbody tr:hover {
+    background-color: var(--bg-timeline) !important;
+}
+
+.col-cb { width: 40px; text-align: center; }
+
+.col-name-progress {
+    width: 55%;
+    padding: 6px 12px !important;
+}
+
+.capsule-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    overflow: hidden;
+}
+
+.progress-bg-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    transition: width 0.3s ease;
+}
+
+.col-name-text { font-weight: 600; color: var(--text-primary); }
+
+.col-percent {
+    text-align: right;
+    width: 60px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.col-time {
+    text-align: right;
+    width: 140px;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.selected-duration { color: var(--text-duration-selected); font-weight: 600; margin-left: 4px; }

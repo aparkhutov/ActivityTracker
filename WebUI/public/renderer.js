@@ -126,30 +126,92 @@ function createBlock(trackKey, start, end, label, className, nativeId) {
   const currentDuration = viewMaxTime - viewMinTime;
   if (end < viewMinTime || start > viewMaxTime)
     return;
- 
   const visibleStart = Math.max(start, viewMinTime);
   const visibleEnd = Math.min(end, viewMaxTime);
- 
   const leftPct = ((visibleStart - viewMinTime) / currentDuration) * 100;
   const widthPct = ((visibleEnd - visibleStart) / currentDuration) * 100;
- 
   const track = document.getElementById(`track-${trackKey}`);
   if (!track)
     return;
- 
   const block = document.createElement('div');
   block.className = `time-block ${className}`;
   block.style.left = `${leftPct}%`;
   block.style.width = `calc(${widthPct}% - 2px)`; 
   block.textContent = label;
-  block.title = `${label} (${formatHourText(start)} - ${formatHourText(end)})`;
- 
+  
+  // Dynamic tracking with global body-level mounting strategy
+  block.addEventListener('mousemove', (e) => {
+    let tooltip = document.body.querySelector('.custom-tooltip');
+    if (!tooltip) {
+      tooltip = document.createElement('div');
+      tooltip.className = 'custom-tooltip';
+      document.body.appendChild(tooltip);
+    }
+    
+    // 1. Calculate exact time under cursor inside track bounds
+    const trackElement = document.querySelector('.row-track');
+    if (!trackElement)
+      return;
+    
+    const trackRect = trackElement.getBoundingClientRect();
+    const mouseXPct = (e.clientX - trackRect.left) / trackRect.width;
+    const currentMouseSec = Math.max(0, Math.min(86400, Math.round(viewMinTime + (mouseXPct * currentDuration))));
+    
+    // 2. Format international text blocks for standard tracking items
+    const timeCursorText = formatHourText(currentMouseSec);
+    const blockRangeText = `${formatHourText(start)} - ${formatHourText(end)}`;
+    
+    let displayLabel = label;
+    if (trackKey === 'activity') {
+      if (label === 'console') displayLabel = 'Local Activity (Active input)';
+      else if (label === 'console-idle') displayLabel = 'Local Idle (No input detected)';
+      else if (label === 'rdp') displayLabel = 'Remote RDP Session (Active input)';
+      else if (label === 'rdp-idle') displayLabel = 'Remote Idle (Session suspended)';
+      else if (label === 'off') displayLabel = 'Session Locked (PC asleep / Off)';
+    }
+    
+    let htmlContent = `
+      <div class="tooltip-time-cursor">${timeCursorText}</div>
+      <div class="tooltip-time-range">${blockRangeText}</div>
+      <div class="tooltip-label-name">${displayLabel}</div>
+    `;
+    
+    // 3. Process track exclusive logic: look up active document under cursor
+    if (trackKey === 'process' && window.timelineData && window.timelineData.data && window.timelineData.data.documents) {
+      const activeDoc = window.timelineData.data.documents.find(d => 
+        currentMouseSec >= d.start && currentMouseSec <= d.end
+      );
+      if (activeDoc) {
+        const docRangeText = `${formatHourText(activeDoc.start)} - ${formatHourText(activeDoc.end)}`;
+        htmlContent += `
+          <div class="tooltip-time-range doc-split">${docRangeText}</div>
+          <div class="tooltip-label-name">${activeDoc.doc || '[No Document]'}</div>
+        `;
+      }
+    }
+    
+    tooltip.innerHTML = htmlContent;
+    
+    // 4. Absolute position assignment relative to document viewport bounds
+    const targetLeft = e.clientX + window.scrollX;
+    const targetTop = e.clientY + window.scrollY;
+    
+    tooltip.style.left = `${targetLeft}px`;
+    tooltip.style.top = `${targetTop}px`;
+  });
+  
+  block.addEventListener('mouseleave', () => {
+    const tooltip = document.body.querySelector('.custom-tooltip');
+    if (tooltip)
+      tooltip.remove();
+  });
+  
   if (trackKey === 'tags') {
     block.addEventListener('dblclick', async (e) => {
       e.stopPropagation();
       if (!confirm("Delete this tag?"))
         return;
-        
+      
       await ApiService.deleteTag(nativeId);
       await initTimeline();
     });
@@ -173,7 +235,7 @@ function updateScrollbarThumb() {
   const oldBars = dom.scrollTrack.querySelectorAll('.scroller-activity-bar');
   oldBars.forEach(bar => bar.remove());
   
-  const lines = window.timelineData.day;
+  const lines = window.timelineData.data;
   if (lines && lines.activity) {
     lines.activity.forEach(act => {
       if (act.status === 'worked') {

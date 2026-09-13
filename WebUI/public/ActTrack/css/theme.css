@@ -1,0 +1,36 @@
+:root {
+    /* Базовые цвета интерфейса */
+    --bg-main: #f5f7fb;
+    --bg-card: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #333333;
+    --text-muted: #475569;
+    --text-light: #64748b;
+    --text-scale: #94a3b8;
+    --border-color: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --bg-label: #f1f5f9;
+    --bg-timeline: #f8fafc;
+
+    /* Цвета выделения (Single Selection и Чекбоксы) */
+    --bg-selected-row: #f0fdf4;
+    --border-selected-row: #22c55e;
+    --bg-selected-label: #dcfce7;
+    --text-selected-label: #14532d;
+    --color-indeterminate: #f59e0b;
+    --text-duration-selected: #22c55e;
+
+    /* Фиксированные цвета полос активности */
+    --color-tag: #3b82f6;
+    --color-app: #f59e0b;
+    --color-doc-default: #ec4899;
+
+    /* Состояния компьютера (Активность) */
+    --color-act-off: #64748b;
+    --color-act-console: #10b981;
+    --color-act-rdp: #8b5cf6;
+    --bg-act-console-idle: #a7f3d0;
+    --text-act-console-idle: #065f46;
+    --bg-act-rdp-idle: #ddd6fe;
+    --text-act-rdp-idle: #5b21b6;
+}
