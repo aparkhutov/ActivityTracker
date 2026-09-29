@@ -7,7 +7,7 @@ input[type="checkbox"]:indeterminate {
     accent-color: var(--color-indeterminate);
 }
 
-/* --- ЛЕВАЯ ТАБЛИЦА --- */
+/* --- LEFT TABLE (Chronology) --- */
 .blocks-table {
     width: 100%;
     border-collapse: collapse;
@@ -75,7 +75,7 @@ th.sort-desc .sort-icon::before { content: "▼"; color: #3b82f6; }
     white-space: nowrap;
 }
 
-/* --- ПРАВАЯ ТАБЛИЦА И КАПСУЛЫ --- */
+/* --- RIGHT TABLE (Stats & Capsules) --- */
 .dashboard-table {
     width: 100%;
     border-collapse: collapse;
