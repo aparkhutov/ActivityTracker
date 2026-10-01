@@ -1,90 +1,128 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Трекер Активностей</title>
-    <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/timeline.css">
-    <link rel="stylesheet" href="css/tables.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activity Tracker</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/timeline.css">
+  <link rel="stylesheet" href="css/tables.css">
 </head>
 <body>
-    <div class="tracker-container">
-        <!-- Заголовок и управление датой -->
-        <header class="tracker-header">
-            <h1>Мониторинг активности</h1>
-            <div class="date-selector">
-                <button id="prev-day">&larr;</button>
-                <span id="current-date">2026-09-08</span>
-                <button id="next-day">&rarr;</button>
-            </div>
-        </header>
+  <div class="tracker-container">
+    <!-- Header and Controls -->
+    <header class="tracker-header">
+      <h1>Activity Monitoring Dashboard</h1>
+      <div class="date-selector">
+        <button id="prev-day">&larr;</button>
+        <span id="current-date">2026-09-08</span>
+        <button id="next-day">&rarr;</button>
+        <button id="settings-open-btn" class="settings-toggle-btn">⚙️ Settings</button>
+      </div>
+    </header>
 
-        <!-- Таймлайн с полосами -->
-        <div class="timeline-container">
-            <div class="time-scale" id="time-scale"></div>
+    <!-- Timeline Layout -->
+    <div class="timeline-container" id="timeline-container">
+      <div class="time-scale" id="time-scale"></div>
 
-            <div class="timeline-rows">
-                <div class="timeline-row" data-row-type="tags" id="row-container-tags">
-                    <div class="row-label">Теги</div>
-                    <div class="row-timeline" id="row-tags"></div>
-                </div>
-                <div class="timeline-row" data-row-type="activity" id="row-container-activity">
-                    <div class="row-label">Активность</div>
-                    <div class="row-timeline" id="row-activity"></div>
-                </div>
-                <div class="timeline-row" data-row-type="apps" id="row-container-apps">
-                    <div class="row-label">Приложения</div>
-                    <div class="row-timeline" id="row-apps"></div>
-                </div>
-                <div class="timeline-row" data-row-type="docs" id="row-container-docs">
-                    <div class="row-label">Документ</div>
-                    <div class="row-timeline" id="row-docs"></div>
-                </div>
-            </div>
+      <div class="timeline-rows">
+        <!-- Container for drag selections and resize handles -->
+        <div id="drag-selection-container" class="drag-selection-container"></div>
+
+        <div class="timeline-row" data-row-type="tags" id="row-container-tags">
+          <div class="row-label">Tags</div>
+          <div class="row-timeline" id="row-tags"></div>
         </div>
-
-        <!-- Две колонки снизу -->
-        <div class="bottom-dashboard">
-            <!-- Левая колонка: Хронология блоков с шапкой и сортировкой -->
-            <div class="dashboard-col">
-                <div class="col-content no-header">
-                    <table class="blocks-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;"><input type="checkbox" id="th-select-all"></th>
-                                <th style="width: 40px;">Тип</th>
-                                <th class="sortable" data-sort="name">Название <span class="sort-icon"></span></th>
-                                <th class="sortable" data-sort="start">Старт <span class="sort-icon"></span></th>
-                                <th class="sortable" data-sort="end">Конец <span class="sort-icon"></span></th>
-                                <th class="sortable" data-sort="duration">Длительность <span class="sort-icon"></span></th>
-                            </tr>
-                        </thead>
-                        <tbody id="blocks-table-body">
-                            <!-- Заполняется из JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Правая колонка: Общая статистика на фоне с выбранным временем -->
-            <div class="dashboard-col">
-                <div class="col-content no-header border-top-fix">
-                    <table class="dashboard-table">
-                        <tbody id="stats-table-body">
-                            <!-- Заполняется из JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="timeline-row" data-row-type="activity" id="row-container-activity">
+          <div class="row-label">Activity</div>
+          <div class="row-timeline" id="row-activity"></div>
         </div>
+        <div class="timeline-row" data-row-type="apps" id="row-container-apps">
+          <div class="row-label">Applications</div>
+          <div class="row-timeline" id="row-apps"></div>
+        </div>
+        <div class="timeline-row" data-row-type="docs" id="row-container-docs">
+          <div class="row-label">Documents</div>
+          <div class="row-timeline" id="row-docs"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Подключение по старинке (CORS-friendly для локальных файлов) -->
-    <script src="data.js"></script>
-    <script src="utils.js"></script>
-    <script src="dashboard.js"></script>
-    <script src="script.js"></script>
+    <!-- Bottom Dashboard Split View -->
+    <div class="bottom-dashboard">
+      <!-- Left Column: Chronology Table -->
+      <div class="dashboard-col">
+        <div class="col-content no-header">
+          <table class="blocks-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"><input type="checkbox" id="th-select-all"></th>
+                <th style="width: 40px;">Type</th>
+                <th class="sortable" data-sort="name">Name <span class="sort-icon"></span></th>
+                <th class="sortable" data-sort="start">Start <span class="sort-icon"></span></th>
+                <th class="sortable" data-sort="end">End <span class="sort-icon"></span></th>
+                <th class="sortable" data-sort="duration">Duration <span class="sort-icon"></span></th>
+              </tr>
+            </thead>
+            <tbody id="blocks-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right Column: Aggregate Statistics -->
+      <div class="dashboard-col">
+        <div class="col-content no-header border-top-fix">
+          <table class="dashboard-table">
+            <tbody id="stats-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal Overlay -->
+  <div id="settings-modal-overlay" class="settings-overlay">
+    <div class="settings-modal">
+      <h2 class="settings-title">⚙️ Settings</h2>
+      
+      <div class="settings-group">
+        <label for="settings-theme" class="settings-label">Theme:</label>
+        <select id="settings-theme" class="settings-select">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+
+      <div class="settings-group">
+        <label for="settings-time-format" class="settings-label">Time Format:</label>
+        <select id="settings-time-format" class="settings-select">
+          <option value="24h">24h</option>
+          <option value="12h">12h</option>
+        </select>
+      </div>
+
+      <div class="settings-group">
+        <label for="settings-idle-threshold" class="settings-label">Idle Threshold (min):</label>
+        <input type="number" id="settings-idle-threshold" min="1" max="60" value="10" class="settings-input">
+      </div>
+
+      <div class="settings-actions">
+        <button id="settings-cancel-btn" class="settings-btn-cancel">Cancel</button>
+        <button id="settings-save-btn" class="settings-btn-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Application Entrypoints -->
+  <script src="data.js"></script>
+  <script src="utils.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="events.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
